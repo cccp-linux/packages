@@ -115,7 +115,9 @@ jobs:
 
       - name: Create release file
         run: |
-          apt-ftparchive release . > Release
+          for suite in ${{ env.suites }}; do
+            apt-ftparchive release dists/$suite > dists/$suite/Release
+          done
 
       - name: Publish packages
         run: |
