@@ -1,0 +1,52 @@
+Package: hello-world-dbgsym
+Architecture: amd64
+Version: 1.0
+Auto-Built-Package: debug-symbols
+Priority: optional
+Section: debug
+Source: hello-world
+Maintainer: Dimitry Ishenko <dimitry.ishenko@gmail.com>
+Installed-Size: 19
+Depends: hello-world (= 1.0)
+Filename: pool/main/hello-world/sid/hello-world-dbgsym_1.0_amd64.deb
+Size: 2212
+MD5sum: 80d050bc5e110732a123c5a852241399
+SHA1: e4f6c625c6c2b3cbe437b44d3898d63d1ff854f5
+SHA256: c4e52a9a0e73f4a82418b1d1e86e4929d2135c4e8203291493fe5360fe9f4344
+SHA512: 522000b75b8602ffa0228d0bc9ecd3710aa9de1f83c0a4b2af62f3c817305160efcfc54565fd1c52dc65236a975c53ed375e4353ef7dd82dc88ba9cba8af364a
+Description: debug symbols for hello-world
+Build-Ids: 185814a6b4bf2593f2099729916d5143d836e126
+
+Package: hello-world-out
+Architecture: all
+Version: 1.0
+Priority: optional
+Section: misc
+Source: hello-world
+Maintainer: Dimitry Ishenko <dimitry.ishenko@gmail.com>
+Installed-Size: 9
+Filename: pool/main/hello-world/sid/hello-world-out_1.0_all.deb
+Size: 1352
+MD5sum: 003f6a9d0220bc97bd289681b4c3720d
+SHA1: 3f17822be56ad747222f848e71bfe62e04b18205
+SHA256: 59f871fedb3ed87188c611388a731e0adb3f6cfac4aa5598f4fabe194db271f7
+SHA512: 24ac78e7f416013619fd26eb7944414e0a85d3a99a153daa696ac545c553716691d7fef4ef013efeb7d6d9246070dfaa47536de202609e9a0e431543ab3b8dbd
+Description: hello-world-out
+
+Package: hello-world
+Architecture: amd64
+Version: 1.0
+Multi-Arch: foreign
+Priority: optional
+Section: misc
+Maintainer: Dimitry Ishenko <dimitry.ishenko@gmail.com>
+Installed-Size: 24
+Depends: libc6 (>= 2.34)
+Filename: pool/main/hello-world/sid/hello-world_1.0_amd64.deb
+Size: 2860
+MD5sum: 78c39d335290b4cbfe1751d08373c6fa
+SHA1: 775f055a6744bb94a8af4c11d67fdfeb95996d59
+SHA256: e8845d1c8a0fdfde14c60e8a09372db5616bcef6ccb4c9aa25bf2a62e6aad677
+SHA512: 4da634c1346b57b8d1973706057abcd7f7680d6051f4011412eed38e6b3a74082017786f7d3c3cec98a5971c499ca30378c7fc3d4f6bb74524d1732dc9402bc4
+Description: hello-world
+
