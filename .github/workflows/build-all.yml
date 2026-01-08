@@ -1,0 +1,107 @@
+name: Build and publish binary and source packages
+
+env:
+  suites: 'sid resolute noble trixie'
+  arches: 'amd64 arm64 armhf'
+
+on:
+  push:
+    branches:
+      - source
+  workflow_dispatch:
+
+jobs:
+  detect:
+    runs-on: ubuntu-24.04
+    outputs:
+      changed: ${{ steps.detect.outputs.changed }}
+      deleted: ${{ steps.detect.outputs.deleted }}
+
+    steps:
+      - name: Checkout source branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: source
+
+      - name: Merge into master branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout master
+          git merge source --no-ff -m "Merge source branch"
+          git push origin master
+
+      - name: Detect changes
+        id: detect
+        run: |
+          before=${{ github.event.before }}
+          after=${{ github.event.after }}
+          changed=$(git diff --name-only --diff-filter=AM $before $after | grep '\.dsc$' || true)
+          deleted=$(git diff --name-only --diff-filter=D  $before $after | grep '\.dsc$' || true)
+
+          [ -z "$changed" ] || echo "changed=$(echo "$changed" | jq -R | jq -sc)" >> $GITHUB_OUTPUT
+          [ -z "$deleted" ] || echo "deleted=$(echo "$deleted" | jq -R | jq -sc)" >> $GITHUB_OUTPUT
+
+  build:
+    needs: detect
+    if: ${{ needs.detect.outputs.changed }}
+
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.detect.outputs.changed) }}
+      max-parallel: 1
+
+    uses: ./.github/workflows/build-package.yml
+    with:
+      path: ${{ matrix.path }}
+
+  publish:
+    needs: build
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Checkout master branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+          ref: master
+
+      - name: Install apt utils
+        run: |
+          sudo apt-get update
+          sudo apt-get -y install --no-install-recommends apt-utils
+
+      - name: Update source indices
+        id: update
+        run: |
+          for suite in ${{ env.suites }}; do
+            sources=dists/$suite/main/source/Sources
+
+            apt-ftparchive sources pool/main > $sources
+            gzip -9c $sources > ${sources}.gz
+          done
+
+      - name: Update package indices
+        run: |
+          for suite in ${{ env.suites }}; do
+            paths=$(find pool/main/ -type d -name $suite)
+
+            for arch in ${{ env.arches }}; do
+              packages=dists/$suite/main/binary-$arch/Packages
+
+              echo "$paths" | while IFS= read -r path; do
+                apt-ftparchive packages --arch $arch $path
+              done > $packages
+              gzip -9c $packages > ${packages}.gz
+
+            done
+          done
+
+      - name: Publish packages
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dists/
+          git commit -m "Update source and package indices"
+          git push origin master
