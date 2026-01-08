@@ -113,10 +113,14 @@ jobs:
             done
           done
 
+      - name: Create release file
+        run: |
+          apt-ftparchive release . > Release
+
       - name: Publish packages
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add dists/
-          git commit -m "Update source and package indices"
+          git add Release dists/
+          git commit -m "Update archive metadata"
           git push origin master
