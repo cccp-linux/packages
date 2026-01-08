@@ -1,0 +1,34 @@
+name: Delete binary package
+
+on:
+  workflow_call:
+    inputs:
+      path: { type: string }
+  workflow_dispatch:
+    inputs:
+      path: { type: string }
+
+permissions:
+  contents: write
+
+jobs:
+  delete:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - name: Check out master
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+          ref: master
+
+      - name: Delete binaries
+        run: |
+          name=$(basename ${{ inputs.path }})
+          pool=$(dirname ${{ inputs.path }})
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm -rf $pool
+          git commit -m "Deleting binaries for $name"
+          git push origin master

@@ -56,8 +56,23 @@ jobs:
     with:
       path: ${{ matrix.path }}
 
+  delete:
+    needs: detect
+    if: ${{ needs.detect.outputs.deleted }}
+
+    strategy:
+      matrix:
+        path: ${{ fromJson(needs.detect.outputs.deleted) }}
+      max-parallel: 1
+
+    uses: ./.github/workflows/delete-package.yml
+    with:
+      path: ${{ matrix.path }}
+
   publish:
-    needs: build
+    needs: [build, delete]
+    if: always() && (needs.build.result == 'success' || needs.delete.result == 'success')
+
     runs-on: ubuntu-24.04
 
     steps:
